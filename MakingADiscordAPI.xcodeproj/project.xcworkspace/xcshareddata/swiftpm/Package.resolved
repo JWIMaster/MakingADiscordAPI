@@ -1,0 +1,59 @@
+{
+  "pins" : [
+    {
+      "identity" : "foundationcompatkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/FoundationCompatKit.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "4934a727790e6170205c9060a7a6771030ee324f"
+      }
+    },
+    {
+      "identity" : "gpuimage1swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/GPUImage1Swift.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "4a936d991f248bb18373aba4c326055b04f3e566"
+      }
+    },
+    {
+      "identity" : "modernsdkkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/ModernSDKKit",
+      "state" : {
+        "branch" : "master",
+        "revision" : "f28a5ef7eeb51fd9547635e152729e9fa3784430"
+      }
+    },
+    {
+      "identity" : "sfsymbolscompatkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/SFSymbolsCompatKit.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "601133a5716a241d733683a0f848e5bf366f693b"
+      }
+    },
+    {
+      "identity" : "uikitcompatkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/UIKitCompatKit.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "2587b96ed1882e72f144fc486b406cc12d190e16"
+      }
+    },
+    {
+      "identity" : "uikitextensions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JWIMaster/UIKitExtensions.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e3ad8aea4b2e370044f1009d213a0e1a632f7ea5"
+      }
+    }
+  ],
+  "version" : 2
+}
