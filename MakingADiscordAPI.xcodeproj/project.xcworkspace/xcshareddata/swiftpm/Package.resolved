@@ -42,7 +42,7 @@
       "location" : "https://github.com/JWIMaster/UIKitCompatKit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "2587b96ed1882e72f144fc486b406cc12d190e16"
+        "revision" : "8d0c96dc99720b9d104957d09b9e7a7b44742c21"
       }
     },
     {
@@ -51,7 +51,7 @@
       "location" : "https://github.com/JWIMaster/UIKitExtensions.git",
       "state" : {
         "branch" : "master",
-        "revision" : "e3ad8aea4b2e370044f1009d213a0e1a632f7ea5"
+        "revision" : "0849c95aedbff866bde3de3215641a6509f1b02c"
       }
     }
   ],

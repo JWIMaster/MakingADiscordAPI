@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     var dmStack: UIKitCompatKit.UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 8
+        stack.spacing = 12
         stack.distribution = .fill
         stack.alignment = .fill
         return stack
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
         
         
         
-        user.getDMs() { dms, error in
+        user.getSortedDMs() { dms, error in
             for dm in dms {
                 let dmButton = UIButton(type: .custom)
                 dmButton.setTitle(dm.recipient?.displayname, for: .normal)
@@ -66,13 +66,21 @@ class ViewController: UIViewController {
                             let messageLabel = UILabel()
                             messageLabel.text = "\(message.author?.displayname ?? "unknown") - \(message.content ?? "unknown")"
                             messageLabel.textColor = .black
+                            messageLabel.lineBreakMode = .byWordWrapping
+                            messageLabel.numberOfLines = 0
                             messageLabel.font = .systemFont(ofSize: 20)
                             self.dmStack.addArrangedSubview(messageLabel)
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.scrollView.layoutIfNeeded()
+                            self.scrollToBottom(scrollView: self.scrollView, animated: false) // start at bottom instantly
                         }
                     }
                 }
                 
                 self.dmStack.addArrangedSubview(dmButton)
+                
             }
         }
         
@@ -90,14 +98,19 @@ class ViewController: UIViewController {
         scrollView.addSubview(dmStack)
         //viewStack.addArrangedSubview(guildStack)
         viewStack.addArrangedSubview(scrollView)
-        dmStack.pinToEdges(of: scrollView)
+        dmStack.pinToEdges(of: scrollView, insetBy: .init(top: 20, left: 20, bottom: 20, right: 20))
         dmStack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         view.addSubview(viewStack)
         viewStack.pinToEdges(of: view)
         viewStack.pinToCenter(of: view)
         
+        
     }
-
-
+    
+    func scrollToBottom(scrollView: UIScrollView, animated: Bool) {
+        let bottomOffset = CGPoint(x: 0,y: max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom))
+        scrollView.setContentOffset(bottomOffset, animated: animated)
+    }
 }
+
 

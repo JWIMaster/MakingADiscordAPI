@@ -2,168 +2,96 @@ import UIKit
 import UIKitCompatKit
 import UIKitExtensions
 import GPUImage1Swift
-
-public class LiquidGlassView: UIKitCompatKit.UIVisualEffectView {
-
-    // MARK: - Public properties
-    public var cornerRadius: CGFloat = 50 {
-        didSet {
-            layer.cornerRadius = cornerRadius
-            updateMaskPath()
-            updateShadow()
-        }
-    }
-
-    /// Shadow configuration
-    public var shadowOpacity: Float = 1 {
-        didSet { updateShadow() }
-    }
-
-    public var shadowRadius: CGFloat = 20 {
-        didSet { updateShadow() }
-    }
-
-    public var shadowOffset: CGSize = CGSize(width: 0, height: 10) {
-        didSet { updateShadow() }
-    }
-
-    /// Optional saturation multiplier (default 1.1)
-    public var saturationBoost: CGFloat = 1.1 {
-        didSet { applySaturationBoost() }
-    }
-
-    // MARK: - Private layers
-    private let rimLayer = CALayer()
-    private let edgeHighlightLayer = CAGradientLayer()
-    private let darkenFalloffLayer = CAGradientLayer()
-    private let diffractionLayer = CALayer()
-
-    private var saturationFilter: GPUImageSaturationFilter?
-
-    // MARK: - Init
-    public init(blurRadius: CGFloat = 12, cornerRadius: CGFloat = 50) {
-        super.init(effect: UIBlurEffect(blurRadius: blurRadius))
-        self.cornerRadius = cornerRadius
-        setupLayers()
-        applySaturationBoost()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupLayers()
-        applySaturationBoost()
-    }
-
-    // MARK: - Setup
-    private func setupLayers() {
-        clipsToBounds = true
-        layer.cornerRadius = cornerRadius
-        layer.masksToBounds = false
-        updateShadow()
-
-        // Subtle darken falloff (inner 10%)
-        darkenFalloffLayer.colors = [
-            UIColor.black.withAlphaComponent(0.15).cgColor,
-            UIColor.clear.cgColor
-        ]
-        darkenFalloffLayer.startPoint = CGPoint(x: 0.5, y: 1)
-        darkenFalloffLayer.endPoint = CGPoint(x: 0.5, y: 0)
-        darkenFalloffLayer.locations = [0, 1]
-        darkenFalloffLayer.compositingFilter = "multiplyBlendMode"
-        layer.addSublayer(darkenFalloffLayer)
-
-        // Rim / edge highlight (white corners, not all around)
-        edgeHighlightLayer.colors = [
-            UIColor.white.withAlphaComponent(0.5).cgColor, // strong corners
-            UIColor.clear.cgColor,
-            UIColor.white.withAlphaComponent(0.2).cgColor, // another subtle highlight
-            UIColor.clear.cgColor
-        ]
-        edgeHighlightLayer.locations = [0.0, 0.15, 0.95, 1.0]
-        edgeHighlightLayer.startPoint = CGPoint(x: 0, y: 0)
-        edgeHighlightLayer.endPoint = CGPoint(x: 1, y: 1)
-        edgeHighlightLayer.compositingFilter = "screenBlendMode"
-        layer.addSublayer(edgeHighlightLayer)
-
-        // Rim layer to slightly brighten edges
-        rimLayer.borderColor = UIColor.white.withAlphaComponent(0.35).cgColor
-        rimLayer.borderWidth = 1.0
-        rimLayer.cornerRadius = cornerRadius
-        layer.addSublayer(rimLayer)
-
-        // Diffraction (subtle refractive inner layer)
-        diffractionLayer.backgroundColor = UIColor.white.withAlphaComponent(0.06).cgColor
-        diffractionLayer.cornerRadius = cornerRadius - 1
-        diffractionLayer.compositingFilter = "differenceBlendMode"
-        layer.addSublayer(diffractionLayer)
-    }
-
-    // MARK: - Layout
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        layoutLayers()
-    }
-
-    private func layoutLayers() {
-        let inset: CGFloat = 2
-        darkenFalloffLayer.frame = bounds
-        edgeHighlightLayer.frame = bounds
-        rimLayer.frame = bounds
-        diffractionLayer.frame = bounds.insetBy(dx: inset, dy: inset)
-        updateMaskPath()
-    }
-
-    private func updateMaskPath() {
-        let mask = CAShapeLayer()
-        mask.path = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
-        layer.mask = mask
-    }
-
-    private func updateShadow() {
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = shadowOpacity
-        layer.shadowRadius = shadowRadius
-        layer.shadowOffset = shadowOffset
-        //]layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
-    }
-
-    // MARK: - Colour / Saturation
-    private func applySaturationBoost() {
-        // Optional: use GPUImage if available
-        #if canImport(GPUImage1Swift)
-        saturationFilter = GPUImageSaturationFilter()
-        saturationFilter?.saturation = saturationBoost
-        #endif
-    }
-}
-
+import LiveFrost
 
 class TestViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Background
-        let background = UIImage(named: "example.jpg")
-        let backgroundView = UIImageView(image: background)
-        backgroundView.contentMode = .scaleAspectFill
-        backgroundView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(backgroundView)
-        backgroundView.pinToEdges(of: view)
-        //view.backgroundColor = .init(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
+        view.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
 
-        // Glass view
-        let glassFrame = CGRect(x: 40, y: 100, width: view.bounds.width - 250, height: 500)
-        let liquidGlass = LiquidGlassView(blurRadius: 8, cornerRadius: 30)
-        liquidGlass.frame = glassFrame
-        let blackView = UIView(frame: liquidGlass.frame)
-        liquidGlass.addSubview(blackView)
-        blackView.backgroundColor = .black
-        blackView.pinToCenter(of: liquidGlass)
-        view.addSubview(liquidGlass)
+        // MARK: - Scroll view with large content
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
 
-        // Make draggable
-        addPanGesture(to: liquidGlass)
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
+        let contentStack = UIStackView()
+        contentStack.axis = .vertical
+        contentStack.spacing = 15
+        contentStack.alignment = .fill
+        contentStack.distribution = .equalSpacing
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentStack)
+
+        NSLayoutConstraint.activate([
+            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20),
+            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -40)
+        ])
+
+        // MARK: - Add lots of sections
+        for i in 1...50 {
+            let container = UIView()
+            container.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+            container.layer.cornerRadius = 12
+            container.layer.borderWidth = 1
+            container.layer.borderColor = UIColor.white.withAlphaComponent(0.15).cgColor
+            container.translatesAutoresizingMaskIntoConstraints = false
+            container.heightAnchor.constraint(equalToConstant: 80).isActive = true
+
+            let label = UILabel()
+            label.text = "Section \(i)"
+            label.textColor = .white
+            label.backgroundColor = .clear
+            label.font = UIFont.systemFont(ofSize: 16)
+            label.translatesAutoresizingMaskIntoConstraints = false
+
+            let button = UIButton(type: .custom)
+            button.setTitle("Action", for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = .blue
+            button.layer.cornerRadius = 10
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+            button.translatesAutoresizingMaskIntoConstraints = false
+
+            container.addSubview(label)
+            container.addSubview(button)
+
+            NSLayoutConstraint.activate([
+                label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 20),
+                label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                button.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20),
+                button.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+            ])
+
+            contentStack.addArrangedSubview(container)
+        }
+
+        // MARK: - Glass panels (on top)
+        let glass1 = LiquidGlassView(blurRadius: 2, cornerRadius: 50)
+        glass1.frame = CGRect(x: 40, y: 100, width: view.bounds.width - 80, height: 100)
+        glass1.scaleFactor = 0.2
+        glass1.isUserInteractionEnabled = true
+        view.addSubview(glass1)
+
+        let glass2 = LiquidGlassView(blurRadius: 2, cornerRadius: 50)
+        glass2.frame = CGRect(x: 60, y: 300, width: view.bounds.width - 120, height: 150)
+        glass2.scaleFactor = 0.2
+        glass2.isUserInteractionEnabled = true
+        //view.addSubview(glass2)
+
+        // Make glass draggable
+        //[glass1, glass2].forEach { addPanGesture(to: $0) }
     }
 
     private func addPanGesture(to view: UIView) {
