@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5F2913A52EA989510019DC0F /* AvatarCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2913A42EA989510019DC0F /* AvatarCache.swift */; };
+		5F50947D2EA4F268002646A2 /* DMViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F50947C2EA4F268002646A2 /* DMViewController.swift */; };
+		5F5094822EA57D92002646A2 /* SharedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5094812EA57D92002646A2 /* SharedValues.swift */; };
+		5F5094862EA64674002646A2 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5094852EA64674002646A2 /* CustomNavigationController.swift */; };
 		5F57B8B22E9EEAC600CA2CE2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F57B8B12E9EEAC600CA2CE2 /* AppDelegate.swift */; };
 		5F57B8B52E9EEAC600CA2CE2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5F57B8B32E9EEAC600CA2CE2 /* LaunchScreen.storyboard */; };
 		5F57B8B72E9EEAC600CA2CE2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F57B8B62E9EEAC600CA2CE2 /* ViewController.swift */; };
@@ -14,12 +18,19 @@
 		5F57B8C12E9EEAE000CA2CE2 /* ModernSDKKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5F57B8C02E9EEAE000CA2CE2 /* ModernSDKKit */; };
 		5F57B8C62E9EF1CF00CA2CE2 /* SwiftcordLegacy in Frameworks */ = {isa = PBXBuildFile; productRef = 5F57B8C52E9EF1CF00CA2CE2 /* SwiftcordLegacy */; };
 		5F57B8CB2E9F327000CA2CE2 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F57B8CA2E9F327000CA2CE2 /* Default-568h@2x.png */; };
-		5F57B8CD2E9F4D2600CA2CE2 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F57B8CC2E9F4D2600CA2CE2 /* TestViewController.swift */; };
-		5F57B8CF2E9F521C00CA2CE2 /* example.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F57B8CE2E9F521B00CA2CE2 /* example.jpg */; };
 		5FEF14622EA0CF1A005598D3 /* UIKitExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 5FEF14612EA0CF1A005598D3 /* UIKitExtensions */; };
+		5FEF14A42EA373C2005598D3 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEF14A32EA373C2005598D3 /* MessageView.swift */; };
+		5FEF14A82EA4485B005598D3 /* InputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEF14A72EA4485B005598D3 /* InputView.swift */; };
+		5FEF15162EA4E616005598D3 /* AuthenticationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEF15152EA4E616005598D3 /* AuthenticationViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5F2913A42EA989510019DC0F /* AvatarCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCache.swift; sourceTree = "<group>"; };
+		5F2913A62EA999FA0019DC0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5F50947C2EA4F268002646A2 /* DMViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMViewController.swift; sourceTree = "<group>"; };
+		5F5094812EA57D92002646A2 /* SharedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedValues.swift; sourceTree = "<group>"; };
+		5F5094852EA64674002646A2 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
+		5F5094872EA65A57002646A2 /* MakingADiscordAPI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MakingADiscordAPI.entitlements; sourceTree = "<group>"; };
 		5F57B8AE2E9EEAC600CA2CE2 /* MakingADiscordAPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MakingADiscordAPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F57B8B12E9EEAC600CA2CE2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5F57B8B42E9EEAC600CA2CE2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -27,9 +38,10 @@
 		5F57B8B82E9EEAC800CA2CE2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5F57B8C32E9EF1C400CA2CE2 /* SwiftcordLegacy */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftcordLegacy; path = ../SwiftcordLegacy; sourceTree = "<group>"; };
 		5F57B8CA2E9F327000CA2CE2 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		5F57B8CC2E9F4D2600CA2CE2 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
-		5F57B8CE2E9F521B00CA2CE2 /* example.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = example.jpg; sourceTree = "<group>"; };
 		5FEF14272EA0B406005598D3 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		5FEF14A32EA373C2005598D3 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
+		5FEF14A72EA4485B005598D3 /* InputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputView.swift; sourceTree = "<group>"; };
+		5FEF15152EA4E616005598D3 /* AuthenticationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +58,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5F50947E2EA5789A002646A2 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				5FEF15152EA4E616005598D3 /* AuthenticationViewController.swift */,
+				5F50947C2EA4F268002646A2 /* DMViewController.swift */,
+				5F57B8B62E9EEAC600CA2CE2 /* ViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		5F50947F2EA578AB002646A2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5FEF14A32EA373C2005598D3 /* MessageView.swift */,
+				5FEF14A72EA4485B005598D3 /* InputView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		5F57B8A52E9EEAC600CA2CE2 = {
 			isa = PBXGroup;
 			children = (
@@ -67,13 +98,17 @@
 		5F57B8B02E9EEAC600CA2CE2 /* MakingADiscordAPI */ = {
 			isa = PBXGroup;
 			children = (
+				5F2913A62EA999FA0019DC0F /* Info.plist */,
+				5F5094872EA65A57002646A2 /* MakingADiscordAPI.entitlements */,
 				5F57B8B12E9EEAC600CA2CE2 /* AppDelegate.swift */,
+				5F50947F2EA578AB002646A2 /* Views */,
+				5F50947E2EA5789A002646A2 /* View Controllers */,
 				5F57B8B32E9EEAC600CA2CE2 /* LaunchScreen.storyboard */,
 				5F57B8CA2E9F327000CA2CE2 /* Default-568h@2x.png */,
-				5F57B8B62E9EEAC600CA2CE2 /* ViewController.swift */,
 				5F57B8B82E9EEAC800CA2CE2 /* Assets.xcassets */,
-				5F57B8CC2E9F4D2600CA2CE2 /* TestViewController.swift */,
-				5F57B8CE2E9F521B00CA2CE2 /* example.jpg */,
+				5F5094812EA57D92002646A2 /* SharedValues.swift */,
+				5F5094852EA64674002646A2 /* CustomNavigationController.swift */,
+				5F2913A42EA989510019DC0F /* AvatarCache.swift */,
 			);
 			path = MakingADiscordAPI;
 			sourceTree = "<group>";
@@ -163,7 +198,6 @@
 			files = (
 				5F57B8B92E9EEAC800CA2CE2 /* Assets.xcassets in Resources */,
 				5F57B8B52E9EEAC600CA2CE2 /* LaunchScreen.storyboard in Resources */,
-				5F57B8CF2E9F521C00CA2CE2 /* example.jpg in Resources */,
 				5F57B8CB2E9F327000CA2CE2 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,8 +210,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F57B8B72E9EEAC600CA2CE2 /* ViewController.swift in Sources */,
-				5F57B8CD2E9F4D2600CA2CE2 /* TestViewController.swift in Sources */,
+				5FEF14A82EA4485B005598D3 /* InputView.swift in Sources */,
+				5F5094822EA57D92002646A2 /* SharedValues.swift in Sources */,
+				5F5094862EA64674002646A2 /* CustomNavigationController.swift in Sources */,
+				5F50947D2EA4F268002646A2 /* DMViewController.swift in Sources */,
 				5F57B8B22E9EEAC600CA2CE2 /* AppDelegate.swift in Sources */,
+				5F2913A52EA989510019DC0F /* AvatarCache.swift in Sources */,
+				5FEF15162EA4E616005598D3 /* AuthenticationViewController.swift in Sources */,
+				5FEF14A42EA373C2005598D3 /* MessageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,14 +354,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MakingADiscordAPI/MakingADiscordAPI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GA4W4X6894;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MakingADiscordAPI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -329,6 +374,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = jwi.MakingADiscordAPI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -340,14 +386,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MakingADiscordAPI/MakingADiscordAPI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GA4W4X6894;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MakingADiscordAPI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -355,6 +406,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = jwi.MakingADiscordAPI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

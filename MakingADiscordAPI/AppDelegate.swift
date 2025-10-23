@@ -6,6 +6,11 @@
 //
 
 import UIKit
+import iOS6BarFix
+import LiveFrost
+import FoundationCompatKit
+import UIKitExtensions
+import SwiftcordLegacy
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,23 +21,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.backgroundColor = .white
-        window?.rootViewController = TestViewController()
-        window?.makeKeyAndVisible()
-        return true
-    }
+        var rootVC: UIViewController
+        var navController: UINavigationController
+        
+        /*let bridge = LFDisplayBridge.sharedInstance()
 
-    func applicationWillResignActive(_ application: UIApplication) {
-    }
+        switch PerformanceManager.performanceClass {
+        case .low, .medium, .potato:
+            bridge?.runLoopMode = RunLoop.Mode.default.rawValue        // NSDefaultRunLoopMode
+        default:
+            bridge?.runLoopMode = RunLoop.Mode.common.rawValue         // NSRunLoopCommonModes
+        }*/
+        
+        if hasAuthenticated != nil {
+            rootVC = ViewController()
+            navController = CustomNavigationController(rootViewController: rootVC)
+            SetStatusBarBlackTranslucent()
+            SetWantsFullScreenLayout(navController, true)
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+            window?.clipsToBounds = false
+            window?.frame = UIScreen.main.bounds
+            window?.rootViewController = navController
+            window?.makeKeyAndVisible()
+            return true
+        } else {
+            rootVC = AuthenticationViewController()
+            window?.rootViewController = rootVC
+            window?.makeKeyAndVisible()
+            return true
+        }
     }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-    }
-
 
 }
 
