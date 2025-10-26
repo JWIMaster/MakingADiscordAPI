@@ -11,7 +11,7 @@ import UIKitCompatKit
 import UIKitExtensions
 import SwiftcordLegacy
 
-public class MessageView: UIView {
+public class MessageView: UIView, UIGestureRecognizerDelegate {
     let messageContent: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -23,8 +23,16 @@ public class MessageView: UIView {
     var messageText = UILabel()
     var messageAttachments: UIImageView?
     var authorAvatar: UIImageView = UIImageView()
+    public var averageAvatarColor: UIColor?
     let authorName = UILabel()
-    let messageBackground = LiquidGlassView(blurRadius: 0, cornerRadius: 22, snapshotTargetView: nil, disableBlur: true)
+    let messageBackground: UIView? = {
+        switch device {
+        case .a4:
+            return UIView()
+        default:
+            return LiquidGlassView(blurRadius: 0, cornerRadius: 22, snapshotTargetView: nil, disableBlur: true)
+        }
+    }()
     var slClient: SLClient?
     var message: Message?
     var isClientUser: Bool?
@@ -44,13 +52,14 @@ public class MessageView: UIView {
         setupText()
         setupBackground()
         setupAuthorName()
-        //setupAvatar()
+        //setupAuthorAvatar()
         setupSubviews()
-        setupAttachments()
         setupContraints()
+        //setupAttachments()
     }
     
     private func setupSubviews() {
+        guard let messageBackground = messageBackground else { return }
         messageContent.addArrangedSubview(messageText)
         addSubview(messageContent)
         addSubview(messageBackground)
@@ -65,34 +74,25 @@ public class MessageView: UIView {
         messageText.backgroundColor = .clear
         messageText.textColor = .white
         messageText.lineBreakMode = .byWordWrapping
-        messageText.preferredMaxLayoutWidth = UIScreen.main.bounds.width - 60
+        messageText.preferredMaxLayoutWidth = UIScreen.main.bounds.width - 80
         messageText.numberOfLines = 0
         messageText.font = .systemFont(ofSize: 17)
         messageText.sizeToFit()
     }
     
     private func setupBackground() {
-        var messageColor = UIColor()
-        if isClientUser! {
-            messageColor = .tealBlue.withAlphaComponent(0.4)
-        } else {
-            messageColor = UIColor(red: 66/255, green: 252/255, blue: 115/255, alpha: 0.4)
-        }
+        guard let messageBackground = messageBackground else { return }
+        
         messageBackground.translatesAutoresizingMaskIntoConstraints = false
         messageBackground.isUserInteractionEnabled = false
-        messageBackground.tintColorForGlass = messageColor
-        messageBackground.shadowColor = messageColor.withAlphaComponent(1).cgColor
-        messageBackground.shadowOpacity = 0.3
-        let shadowRadius: CGFloat = {
-            if device == .a4 {
-                return 0
-            }
-            else {
-                return 6
-            }
-        }()
-        messageBackground.shadowRadius = shadowRadius
-        messageBackground.solidViewColour = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
+        
+        if let messageBackground = messageBackground as? LiquidGlassView {
+            messageBackground.shadowOpacity = 0.3
+            messageBackground.shadowRadius = 6
+            messageBackground.solidViewColour = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
+        } else {
+            messageBackground.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
+        }
         
         messageBackground.sizeToFit()
     }
@@ -106,20 +106,32 @@ public class MessageView: UIView {
         authorName.sizeToFit()
     }
     
-    private func setupAvatar() {
+    private func setupAuthorAvatar() {
         guard let author = message?.author else { return }
 
         authorAvatar = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        authorAvatar.translatesAutoresizingMaskIntoConstraints = false
         
-        
-        AvatarCache.shared.avatar(for: author) { [weak self] image in
-            guard let self = self, let image = image else { return }
+        AvatarCache.shared.avatar(for: author) { [weak self] image, color in
+            guard let self = self, let image = image, let color = color else { return }
             
-            let resized = image.resizeImage(image, targetSize: CGSize(width: 30, height: 30))
-            
-            DispatchQueue.main.async {
-                self.authorAvatar.image = resized
-                self.authorAvatar.contentMode = .scaleAspectFit
+            DispatchQueue.global(qos: .userInitiated).async {
+                let resized = image.resizeImage(image, targetSize: CGSize(width: 30, height: 30))
+                
+                DispatchQueue.main.async {
+                    self.authorAvatar.image = resized
+                    self.authorAvatar.contentMode = .scaleAspectFit
+                    
+                    if let messageBackground = self.messageBackground as? LiquidGlassView {
+                        messageBackground.tintColorForGlass = color.withIncreasedSaturation(factor: 1.4).withAlphaComponent(0.4)
+                        messageBackground.shadowColor = color.withIncreasedSaturation(factor: 1.4).withAlphaComponent(1).cgColor
+                        messageBackground.shadowOpacity = 0.6
+                        messageBackground.setNeedsLayout()
+                    } else {
+                        self.messageBackground?.backgroundColor = color.withIncreasedSaturation(factor: 1.4)
+                        self.messageBackground?.setNeedsLayout()
+                    }
+                }
             }
         }
     }
@@ -128,36 +140,141 @@ public class MessageView: UIView {
     private func setupDate() {
         
     }
-    
-    private func setupAttachments() {
-        guard let attachment = self.message?.attachments.first else { return }
-        
-        attachment.fetch { [weak self] content in
-            guard let self = self else { return }
-            guard let image = content as? UIImage else { return }
-            
-            let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            let originalSize = image.size
-            let aspectRatio = originalSize.height / originalSize.width
 
-            self.messageAttachments = imageView
-            
-            self.messageContent.addArrangedSubview(imageView)
-            NSLayoutConstraint.activate([
-                imageView.leadingAnchor.constraint(equalTo: self.messageContent.leadingAnchor),
-                imageView.trailingAnchor.constraint(equalTo: self.messageContent.trailingAnchor),
-                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: image.size.height / image.size.width)
-            ])
-            self.setNeedsLayout()
-            self.layoutIfNeeded()
+    private func getAttachment(attachment: Attachment) {
+        guard let attachmentWidth = attachment.width, let attachmentHeight = attachment.height else { return }
+        
+        let aspectRatio = attachmentWidth / attachmentHeight
+        let width = UIScreen.main.bounds.width-40
+        let height = width / aspectRatio
+        let scaledSize = CGSize(width: width, height: height)
+        
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.messageAttachments = imageView
+        
+        self.messageContent.addArrangedSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            imageView.leadingAnchor.constraint(equalTo: self.messageContent.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: self.messageContent.trailingAnchor),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1/aspectRatio)
+        ])
+        
+        attachment.fetch { [weak self] attachment in
+            guard let self = self, let image = attachment as? UIImage else { return }
+            DispatchQueue.global(qos: .userInitiated).async {
+                autoreleasepool {
+                    let resizedImage = image.resizeImage(image, targetSize: scaledSize)
+                    DispatchQueue.main.async {
+                        imageView.image = resizedImage
+                    }
+                }
+            }
         }
     }
+    
+    //MARK: TODO cannot fix multi attachments on iOS 6 it is slow as hell for some reason
+    private func setupAttachments() {
+        guard let message = message else {
+            return
+        }
+
+        if #available(iOS 7.0.1, *) {
+            setupAttachments7()
+        } else {
+            guard let firstAttachment = message.attachments.first else { return }
+            getAttachment(attachment: firstAttachment)
+        }
+    }
+    
+    private func setupAttachments7() {
+        guard let message = message else { return }
+        let attachments = message.attachments
+        guard !attachments.isEmpty else { return }
+        var index = 0
+        
+        //Stack of all the attachments
+        let attachmentStack = UIStackView()
+        attachmentStack.axis = .vertical
+        attachmentStack.spacing = 8
+        attachmentStack.distribution = .fillEqually
+        attachmentStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        while index < attachments.count {
+            //Stack for row of 2 attachments
+            let rowStack = UIStackView()
+            rowStack.axis = .horizontal
+            rowStack.spacing = 8
+            rowStack.distribution = .fillEqually
+            rowStack.translatesAutoresizingMaskIntoConstraints = false
+
+            // Add up to 2 attachments per row
+            for increment in 0...1 where index + increment < attachments.count {
+                let attachment = attachments[index + increment]
+                
+                guard let attachmentWidth = attachment.width, let attachmentHeight = attachment.height else { return }
+
+                let aspectRatio = attachmentWidth / attachmentHeight
+                let width = (UIScreen.main.bounds.width-40)/2
+                let height = width / aspectRatio
+                let scaledSize = CGSize(width: width, height: height)
+                
+                let imageView = UIImageView()
+                imageView.contentMode = .scaleAspectFit
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                
+                let tapGesture = UILongPressGestureRecognizer(target: self, action: #selector(imageClick))
+                tapGesture.cancelsTouchesInView = false
+                tapGesture.delegate = self
+                imageView.addGestureRecognizer(tapGesture)
+                imageView.isUserInteractionEnabled = true
+                rowStack.addArrangedSubview(imageView)
+                
+                //Set height or else behaves poorly
+                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1/aspectRatio).isActive = true
+                
+                // Fetch image async
+                attachment.fetch { [weak imageView] attachment in
+                    guard let imageView = imageView, let image = attachment as? UIImage else { return }
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        autoreleasepool {
+                            let resizedImage = image.resizeImage(image, targetSize: scaledSize)
+                            DispatchQueue.main.async {
+                                imageView.image = resizedImage
+                                imageView.backgroundColor = .clear
+                            }
+                        }
+                    }
+                }
+            }
+            attachmentStack.addArrangedSubview(rowStack)
+            //Move onto next pair
+            index += 2
+        }
+        self.messageContent.addArrangedSubview(attachmentStack)
+    }
+
+    @objc private func imageClick(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began,
+              let imageView = gesture.view as? UIImageView,
+              let image = imageView.image else { return }
+        
+        let newImageView = UIImageView(image: image)
+        newImageView.contentMode = .scaleAspectFit
+        newImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        let vc = AttachmentViewController(attachment: newImageView)
+        self.parentViewController?.navigationController?.pushViewController(vc, animated: true)
+    }
+
 
 
     
     private func setupContraints() {
+        guard let messageBackground = messageBackground else { return }
         NSLayoutConstraint.activate([
             messageBackground.topAnchor.constraint(equalTo: self.topAnchor),
             messageBackground.leadingAnchor.constraint(equalTo: self.leadingAnchor),
@@ -195,63 +312,11 @@ public class MessageView: UIView {
     public override func layoutSubviews() {
         super.layoutSubviews()
     }
-    
-    deinit {
-        unloadHeavyContent()
-        print("Deinit!")
-    }
-    
-    public func unloadHeavyContent() {
-        // Remove attachment image and layer contents
-        if let imgView = messageAttachments {
-            imgView.image = nil
-            imgView.layer.contents = nil
-            imgView.removeFromSuperview()
-            messageAttachments = nil
-        }
-
-        // Release avatar and its layer
-        authorAvatar.image = nil
-        authorAvatar.layer.contents = nil
-
-        // Remove blurred background textures
-        messageBackground.layer.contents = nil
-
-        // Force Core Animation to release textures
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        layer.contents = nil
-        CATransaction.commit()
-
-        // Remove from superview to break layout/animation retain chains
-        removeFromSuperview()
-
-        // Hint ARC cleanup
-        DispatchQueue.global(qos: .background).async {
-            autoreleasepool { }
-        }
-    }
-
 }
 
 
-extension UIImage {
-    static func solid(color: UIColor, size: CGSize = CGSize(width: 30, height: 30)) -> UIImage {
-        let rect = CGRect(origin: .zero, size: size)
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        color.setFill()
-        UIRectFill(rect)
-        let image = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-        return image
-    }
-    
-    func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
-        print("resized")
-        UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
-        image.draw(in: CGRect(origin: .zero, size: targetSize))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return newImage ?? image
-    }
-}
+
+
+
+
+

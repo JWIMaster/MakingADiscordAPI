@@ -13,6 +13,8 @@ public class CustomNavigationController: UINavigationController {
         return glassView
     }()
     
+    weak var snapshotTargetView: UIView?
+    
     public var navBarFrame: UIView = UIView()
 
     private let titleLabel = UILabel()
@@ -87,9 +89,9 @@ public class CustomNavigationController: UINavigationController {
     }
     
     public override func viewDidAppear(_ animated: Bool) {
-        if let superview = self.view.superview {
-            customNavBar.snapshotTargetView = superview
-        }
+        guard let superview = self.view.superview else { return }
+        self.snapshotTargetView = superview
+        self.customNavBar.snapshotTargetView = snapshotTargetView
     }
     
     private func updateNavBar(for viewController: UIViewController?) {

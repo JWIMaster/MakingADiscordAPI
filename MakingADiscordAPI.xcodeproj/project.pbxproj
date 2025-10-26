@@ -8,9 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		5F2913A52EA989510019DC0F /* AvatarCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2913A42EA989510019DC0F /* AvatarCache.swift */; };
+		5F2914002EAB093C0019DC0F /* DMButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2913FF2EAB093C0019DC0F /* DMButtonCell.swift */; };
+		5F2914022EAB09440019DC0F /* ChannelButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2914012EAB09440019DC0F /* ChannelButtonView.swift */; };
+		5F2914042EAB64C50019DC0F /* GroupDMViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2914032EAB64C50019DC0F /* GroupDMViewController.swift */; };
+		5F2914062EAC462F0019DC0F /* png8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2914052EAC462F0019DC0F /* png8.swift */; };
+		5F2914082EAC4EB00019DC0F /* defaultavatar.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F2914072EAC4EB00019DC0F /* defaultavatar.png */; };
 		5F50947D2EA4F268002646A2 /* DMViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F50947C2EA4F268002646A2 /* DMViewController.swift */; };
 		5F5094822EA57D92002646A2 /* SharedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5094812EA57D92002646A2 /* SharedValues.swift */; };
 		5F5094862EA64674002646A2 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5094852EA64674002646A2 /* CustomNavigationController.swift */; };
+		5F5450502EACB03E0066AEC6 /* AttachmentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F54504F2EACB03E0066AEC6 /* AttachmentViewController.swift */; };
 		5F57B8B22E9EEAC600CA2CE2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F57B8B12E9EEAC600CA2CE2 /* AppDelegate.swift */; };
 		5F57B8B52E9EEAC600CA2CE2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5F57B8B32E9EEAC600CA2CE2 /* LaunchScreen.storyboard */; };
 		5F57B8B72E9EEAC600CA2CE2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F57B8B62E9EEAC600CA2CE2 /* ViewController.swift */; };
@@ -27,10 +33,16 @@
 /* Begin PBXFileReference section */
 		5F2913A42EA989510019DC0F /* AvatarCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCache.swift; sourceTree = "<group>"; };
 		5F2913A62EA999FA0019DC0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5F2913FF2EAB093C0019DC0F /* DMButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMButtonCell.swift; sourceTree = "<group>"; };
+		5F2914012EAB09440019DC0F /* ChannelButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelButtonView.swift; sourceTree = "<group>"; };
+		5F2914032EAB64C50019DC0F /* GroupDMViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDMViewController.swift; sourceTree = "<group>"; };
+		5F2914052EAC462F0019DC0F /* png8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = png8.swift; sourceTree = "<group>"; };
+		5F2914072EAC4EB00019DC0F /* defaultavatar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = defaultavatar.png; sourceTree = "<group>"; };
 		5F50947C2EA4F268002646A2 /* DMViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DMViewController.swift; sourceTree = "<group>"; };
 		5F5094812EA57D92002646A2 /* SharedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedValues.swift; sourceTree = "<group>"; };
 		5F5094852EA64674002646A2 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
 		5F5094872EA65A57002646A2 /* MakingADiscordAPI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MakingADiscordAPI.entitlements; sourceTree = "<group>"; };
+		5F54504F2EACB03E0066AEC6 /* AttachmentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentViewController.swift; sourceTree = "<group>"; };
 		5F57B8AE2E9EEAC600CA2CE2 /* MakingADiscordAPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MakingADiscordAPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F57B8B12E9EEAC600CA2CE2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5F57B8B42E9EEAC600CA2CE2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -62,7 +74,9 @@
 			isa = PBXGroup;
 			children = (
 				5FEF15152EA4E616005598D3 /* AuthenticationViewController.swift */,
+				5F54504F2EACB03E0066AEC6 /* AttachmentViewController.swift */,
 				5F50947C2EA4F268002646A2 /* DMViewController.swift */,
+				5F2914032EAB64C50019DC0F /* GroupDMViewController.swift */,
 				5F57B8B62E9EEAC600CA2CE2 /* ViewController.swift */,
 			);
 			path = "View Controllers";
@@ -73,6 +87,8 @@
 			children = (
 				5FEF14A32EA373C2005598D3 /* MessageView.swift */,
 				5FEF14A72EA4485B005598D3 /* InputView.swift */,
+				5F2913FF2EAB093C0019DC0F /* DMButtonCell.swift */,
+				5F2914012EAB09440019DC0F /* ChannelButtonView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -105,10 +121,12 @@
 				5F50947E2EA5789A002646A2 /* View Controllers */,
 				5F57B8B32E9EEAC600CA2CE2 /* LaunchScreen.storyboard */,
 				5F57B8CA2E9F327000CA2CE2 /* Default-568h@2x.png */,
+				5F2914072EAC4EB00019DC0F /* defaultavatar.png */,
 				5F57B8B82E9EEAC800CA2CE2 /* Assets.xcassets */,
 				5F5094812EA57D92002646A2 /* SharedValues.swift */,
 				5F5094852EA64674002646A2 /* CustomNavigationController.swift */,
 				5F2913A42EA989510019DC0F /* AvatarCache.swift */,
+				5F2914052EAC462F0019DC0F /* png8.swift */,
 			);
 			path = MakingADiscordAPI;
 			sourceTree = "<group>";
@@ -196,6 +214,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F2914082EAC4EB00019DC0F /* defaultavatar.png in Resources */,
 				5F57B8B92E9EEAC800CA2CE2 /* Assets.xcassets in Resources */,
 				5F57B8B52E9EEAC600CA2CE2 /* LaunchScreen.storyboard in Resources */,
 				5F57B8CB2E9F327000CA2CE2 /* Default-568h@2x.png in Resources */,
@@ -210,12 +229,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F57B8B72E9EEAC600CA2CE2 /* ViewController.swift in Sources */,
+				5F2914062EAC462F0019DC0F /* png8.swift in Sources */,
 				5FEF14A82EA4485B005598D3 /* InputView.swift in Sources */,
 				5F5094822EA57D92002646A2 /* SharedValues.swift in Sources */,
+				5F2914042EAB64C50019DC0F /* GroupDMViewController.swift in Sources */,
+				5F2914002EAB093C0019DC0F /* DMButtonCell.swift in Sources */,
 				5F5094862EA64674002646A2 /* CustomNavigationController.swift in Sources */,
 				5F50947D2EA4F268002646A2 /* DMViewController.swift in Sources */,
 				5F57B8B22E9EEAC600CA2CE2 /* AppDelegate.swift in Sources */,
+				5F2914022EAB09440019DC0F /* ChannelButtonView.swift in Sources */,
 				5F2913A52EA989510019DC0F /* AvatarCache.swift in Sources */,
+				5F5450502EACB03E0066AEC6 /* AttachmentViewController.swift in Sources */,
 				5FEF15162EA4E616005598D3 /* AuthenticationViewController.swift in Sources */,
 				5FEF14A42EA373C2005598D3 /* MessageView.swift in Sources */,
 			);
@@ -366,7 +390,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -398,7 +422,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

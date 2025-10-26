@@ -5,7 +5,7 @@ import SwiftcordLegacy
 
 
 public class InputView: UIView, UITextViewDelegate {
-    public var snapshotView: UIView?
+    public weak var snapshotView: UIView?
     public let backgroundView: LiquidGlassView = {
         let bView = LiquidGlassView(blurRadius: 8, cornerRadius: 20, snapshotTargetView: nil, disableBlur: PerformanceManager.disableBlur)
         bView.translatesAutoresizingMaskIntoConstraints = false
@@ -14,7 +14,7 @@ public class InputView: UIView, UITextViewDelegate {
         bView.frameInterval = PerformanceManager.frameInterval
         return bView
     }()
-    public var dm: DM?
+    public var dm: DMChannel?
     public var tokenInputView: Bool?
     
     
@@ -33,7 +33,7 @@ public class InputView: UIView, UITextViewDelegate {
     
     public let sendButton = UIButton(type: .custom)
     
-    public init(dm: DM, snapshotView: UIView, tokenInputView: Bool = false) {
+    public init(dm: DMChannel, snapshotView: UIView, tokenInputView: Bool = false) {
         super.init(frame: .zero)
         self.snapshotView = snapshotView
         self.dm = dm
@@ -73,8 +73,9 @@ public class InputView: UIView, UITextViewDelegate {
         buttonBackground.pinToEdges(of: sendButton, insetBy: .init(top: -4, left: -8, bottom: -4, right: -8))
         buttonBackground.isUserInteractionEnabled = false
         sendButton.sendSubviewToBack(buttonBackground)
-        sendButton.addAction(for: .touchUpInside) {
-            self.sendMessageAction()
+        //Must use weak self or else the whole inputview gets retained 
+        sendButton.addAction(for: .touchUpInside) { [weak self] in
+            self?.sendMessageAction()
         }
         
         
@@ -105,8 +106,11 @@ public class InputView: UIView, UITextViewDelegate {
     
     private func sendMessageAction() {
         self.sendButton.isUserInteractionEnabled = false
+        
         guard let dmID = self.dm?.id else { return }
-        clientUser.sendMessage(self.textView.text, to: dmID) { message, error in
+        
+        clientUser.sendMessage(self.textView.text, to: dmID) { [weak self] message, error in
+            guard let self = self else { return }
             self.textView.text = nil
             self.textViewDidChange(self.textView)
             self.sendButton.isUserInteractionEnabled = true
@@ -136,6 +140,4 @@ public class InputView: UIView, UITextViewDelegate {
         let height = max(40, min(size.height, 120))
         return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
-    
-    
 }

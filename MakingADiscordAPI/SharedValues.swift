@@ -29,6 +29,8 @@ public var token: String? {
 
 public let clientUser = SLClient(token: token ?? "idk")
 
+public var currentlyOpenChannel: Snowflake = Snowflake(0)
+
 public var hasAuthenticated: String? {
     get {
         return StringCache.load(for: "hasAuthenticated")
@@ -85,7 +87,8 @@ public class StringCache {
 
 private var DeviceInfoClass = DeviceInfo()
 public var device: ChipsetClass {
-    return DeviceInfoClass.chipsetClass()
+    //return DeviceInfoClass.chipsetClass()
+    return .a4
 }
 private var captureScale: CGFloat {
     switch device {

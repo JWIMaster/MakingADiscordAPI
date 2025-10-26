@@ -16,10 +16,12 @@ import iOS6BarFix
 
 class DMViewController: UIViewController, UIGestureRecognizerDelegate {
     public var dm: DM?
-    
+    var textInputView: InputView?
     var messageIDsInStack = Set<Snowflake>()
+    var userIDsInStack = Set<Snowflake>()
     var initialViewSetupComplete = false
     
+    let backgroundGradient = CAGradientLayer()
     let scrollView = UIScrollView()
     let containerView = UIView()
     var containerViewBottomConstraint: NSLayoutConstraint!
@@ -58,82 +60,58 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         setupSubviews()
         setupConstraints()
         getMessages()
-        setupWebsocketWatchers()
-    }
-    
-    func setupWebsocketWatchers() {
-        let center = NotificationCenter.default
-        observers.append(center.addObserver(forName: .messageCreate, object: nil, queue: .main) { [weak self] notification in
-            self?.createMessage(notification: notification as NSNotification)
-        })
-        observers.append(center.addObserver(forName: .messageDelete, object: nil, queue: .main) { [weak self] notification in
-            self?.deleteMessage(notification: notification as NSNotification)
-        })
-        observers.append(center.addObserver(forName: .messageUpdate, object: nil, queue: .main) { [weak self] notification in
-            self?.updateMessage(notification: notification as NSNotification)
-        })
-    }
-    
-    deinit {
-        for observer in observers {
-            NotificationCenter.default.removeObserver(observer)
-        }
+        attachGatewayObservers()
+        //animatedBackground()
         
-        print("✅ DMViewController deinitialized")
+        
     }
     
-    /*override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        for subview in dmStack.arrangedSubviews {
-            if let mv = subview as? MessageView {
-                mv.unloadHeavyContent()
-                mv.removeFromSuperview()
-            } else {
-                subview.removeFromSuperview()
-            }
-        }
-        dmStack.removeFromSuperview()
-        containerView.removeFromSuperview()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
 
-        URLCache.shared.removeAllCachedResponses()
-        func clearLayers(_ view: UIView) {
-            view.layer.contents = nil
-            view.layer.removeAllAnimations()
-            view.subviews.forEach { clearLayers($0) }
+    func attachGatewayObservers() {
+        guard let gateway = clientUser.gateway else { return }
+
+        // Assign closures
+        gateway.onMessageCreate = { [weak self] message in
+            self?.createMessage(message)
         }
-        clearLayers(view)
-        DispatchQueue.main.async {
-            autoreleasepool { }
+        gateway.onMessageUpdate = { [weak self] message in
+            self?.updateMessage(message)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            autoreleasepool { }
+        gateway.onMessageDelete = { [weak self] message in
+            self?.deleteMessage(message)
         }
-    }*/
+    }
+
 
     
-    @objc func createMessage(notification: NSNotification) {
-        guard let messageData = notification.userInfo as? [String: Any] else { return }
+    
+    //Websocket create message function
+    func createMessage(_ message: Message) {
         
-        let message = Message(clientUser, messageData)
-        
-        if !messageIDsInStack.contains(message.id!) {
+        //Unwrap optionals and check if the stack already contains the message we are about to add
+        if let messageID = message.id, let userID = message.author?.id, !messageIDsInStack.contains(messageID), self.dm?.id == message.channelID {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return }
                 self.dmStack.addArrangedSubview(MessageView(clientUser, message: message))
+                self.messageIDsInStack.insert(messageID)
+                
+                //If it's a new user, add it to the list of users
+                if !self.userIDsInStack.contains(userID) { self.userIDsInStack.insert(userID) }
+                
                 self.scrollView.layoutIfNeeded()
                 self.scrollToBottom(animated: true)
             }
         }
     }
     
-    @objc func deleteMessage(notification: NSNotification) {
-        guard let messageData = notification.userInfo as? [String: Any] else { return }
-        
-        let message = Message(clientUser, messageData)
-        
+    func deleteMessage(_ message: Message) {
         for view in dmStack.arrangedSubviews {
             if let messageView = view as? MessageView, messageView.message?.id == message.id {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction, .curveEaseInOut], animations: {
                         self.dmStack.removeArrangedSubview(messageView)
                         self.view.layoutIfNeeded()
@@ -143,14 +121,11 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    @objc func updateMessage(notification: NSNotification) {
-        guard let messageData = notification.userInfo as? [String: Any] else { return }
-        
-        let message = Message(clientUser, messageData)
-        
+    func updateMessage(_ message: Message) {
         for view in dmStack.arrangedSubviews {
             if let messageView = view as? MessageView, messageView.message?.id == message.id {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction, .curveEaseInOut], animations: {
                         messageView.updateMessage(message)
                         self.view.layoutIfNeeded()
@@ -161,8 +136,16 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func setupKeyboardObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDisappear(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        let center = NotificationCenter.default
+        
+        observers.append(center.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.keyboardWillAppear(notification: notification as NSNotification)
+        })
+        
+        observers.append(center.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.keyboardWillDisappear(notification: notification as NSNotification)
+        })
+        
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -170,7 +153,22 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addGestureRecognizer(tapGesture)
     }
     
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Make tap wait to see if hold activates
+        if gestureRecognizer is UITapGestureRecognizer, otherGestureRecognizer is UILongPressGestureRecognizer {
+            return true
+        }
+        return false
+    }
+
+    
     @objc private func dismissKeyboard() {
+        print("tap")
         view.endEditing(true)
     }
     
@@ -186,6 +184,7 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         containerView.alpha = 0
     }
     
+    //REST API past 50 message get function
     func getMessages() {
         guard let dm = dm, let id = dm.id else { return }
         
@@ -208,31 +207,36 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    //Add messages fetched via REST API to the stack
     func addMessagesToStack(_ messages: [Message]) {
         
         for message in messages {
-            if let messageID = message.id, !messageIDsInStack.contains(messageID) {
-                
+            if let messageID = message.id, let userID = message.author?.id, !messageIDsInStack.contains(messageID) {
                 let messageView = MessageView(clientUser, message: message)
                 self.dmStack.addArrangedSubview(messageView)
                 messageIDsInStack.insert(messageID)
                 scrollView.layoutIfNeeded()
                 scrollToBottom(animated: true)
+                if !userIDsInStack.contains(userID) { userIDsInStack.insert(userID) }
             }
         }
     }
     
     func setupInputView(for dm: DM) {
-        let inputView = InputView(dm: dm, snapshotView: view)
-        containerView.addSubview(inputView)
-        inputView.translatesAutoresizingMaskIntoConstraints = false
+        textInputView = InputView(dm: dm, snapshotView: view)
+        guard let textInputView = textInputView else {
+            return
+        }
+
+        containerView.addSubview(textInputView)
+        textInputView.translatesAutoresizingMaskIntoConstraints = false
         
-        inputView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
-        inputView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        inputView.widthAnchor.constraint(equalTo: containerView.widthAnchor, constant: -20).isActive = true
+        textInputView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
+        textInputView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        textInputView.widthAnchor.constraint(equalTo: containerView.widthAnchor, constant: -20).isActive = true
         
         view.layoutIfNeeded()
-        scrollView.contentInset.bottom = inputView.bounds.height + 10
+        scrollView.contentInset.bottom = textInputView.bounds.height + 10
         scrollView.contentInset.top = (navigationController?.navigationBar.frame.height)!
         
         scrollView.layoutIfNeeded()
@@ -261,6 +265,47 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
     func scrollToBottom(animated: Bool) {
         let bottomOffset = CGPoint(x: 0,y: max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom))
         scrollView.setContentOffset(bottomOffset, animated: animated)
+    }
+    
+    func animatedBackground() {
+        backgroundGradient.frame = view.frame
+        backgroundGradient.colors = [self.view.backgroundColor?.cgColor, self.view.backgroundColor?.cgColor]
+        view.layer.insertSublayer(backgroundGradient, below: view.layer.superlayer)
+        animateGradient()
+    }
+    
+    func animateGradient(completion: (() -> Void)? = nil) {
+        var avatarColors: [UIColor] = []
+        var gradientColors: [CGColor] = []
+        
+        guard let recipient = dm?.recipient else { return }
+        
+        AvatarCache.shared.avatar(for: recipient) { image, color in
+            guard let color = color else { return }
+            avatarColors.append(color)
+        }
+        
+        
+        
+        for color in avatarColors {
+            gradientColors.append(color.cgColor)
+            gradientColors.append(UIColor.random(around: color, variance: 0.1).cgColor)
+        }
+        
+        CATransaction.begin()
+        CATransaction.setCompletionBlock { [weak self] in
+            self?.backgroundGradient.colors = gradientColors
+            self?.animateGradient(completion: completion)
+        }
+        
+        let animation = CABasicAnimation(keyPath: "colors")
+        animation.duration = 3.0
+        animation.toValue = gradientColors
+        animation.fillMode = .forwards
+        animation.isRemovedOnCompletion = false
+        
+        backgroundGradient.add(animation, forKey: "colorChange")
+        CATransaction.commit()
     }
     
     

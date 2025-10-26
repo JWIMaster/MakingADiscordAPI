@@ -1,111 +1,105 @@
 //
-//  ViewController.swift
+//  DMsCollectionViewController.swift
 //  MakingADiscordAPI
 //
-//  Created by JWI on 15/10/2025.
+//  Created by JWI on 24/10/2025.
 //
 
 import UIKit
-import UIKitCompatKit
-import FoundationCompatKit
 import SwiftcordLegacy
 import UIKitExtensions
+import UIKitCompatKit
 import iOS6BarFix
 
-//public typealias UIStackView = UIKitCompatKit.UIStackView
+public typealias UIStackView = UIKitCompatKit.UIStackView
 
 class ViewController: UIViewController {
-    let scrollView = UIScrollView()
     
-    var dmStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.distribution = .fill
-        stack.alignment = .fill
-        return stack
+    private var dms: [DMChannel] = []
+    
+    private var offset: CGFloat {
+        if #available(iOS 7.0.1, *) {
+            return UIApplication.shared.statusBarFrame.height+(self.navigationController?.navigationBar.frame.height)!
+        } else {
+            return UIApplication.shared.statusBarFrame.height*2+(self.navigationController?.navigationBar.frame.height)!
+        }
+    }
+    
+    private lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 8
+        layout.sectionInset = UIEdgeInsets(top: offset, left: 20, bottom: 20, right: 20)
+        
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+
+        cv.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
+        cv.delegate = self
+        cv.dataSource = self
+        cv.register(DMButtonCell.self, forCellWithReuseIdentifier: DMButtonCell.reuseID)
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        return cv
     }()
-    
-    var guildStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.distribution = .fillEqually
-        stack.alignment = .center
-        return stack
-    }()
-    
-    var viewStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.distribution = .fillEqually
-        return stack
-    }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.22, alpha: 1)
-        SetWantsFullScreenLayout(self, true)
         title = "Direct Messages"
+        view.backgroundColor = collectionView.backgroundColor
         
         clientUser.setIntents(intents: .directMessages, .directMessagesTyping)
         clientUser.connect()
+        SetStatusBarBlackTranslucent()
+        SetWantsFullScreenLayout(self, true)
+        view.addSubview(collectionView)
         
-        setupSubviews()
-        setupConstraints()
-        getDMs()
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
-        
-        
-        
-        let clearCache = UIButton(type: .custom)
-        clearCache.setTitle("Clear Cache", for: .normal)
-        clearCache.titleLabel?.font = .systemFont(ofSize: 17)
-        clearCache.setTitleColor(.black, for: .normal)
-        clearCache.titleLabel?.backgroundColor = .clear
-        clearCache.addAction(for: .touchUpInside) {
-            AvatarCache.shared.clearCache()
-        }
-        dmStack.addArrangedSubview(clearCache)
+        fetchDMs()
     }
     
-    func setupSubviews() {
-        scrollView.isDirectionalLockEnabled = true
-        scrollView.addSubview(dmStack)
-        viewStack.addArrangedSubview(scrollView)
-        view.addSubview(viewStack)
-    }
-    
-    func setupConstraints() {
-        dmStack.pinToEdges(of: scrollView, insetBy: .init(top: 20, left: 20, bottom: 20, right: 20))
-        dmStack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
-        viewStack.pinToEdges(of: view, insetBy: .init(top: (self.navigationController?.navigationBar.frame.height)!+10, left: 0, bottom: 0, right: 0))
-        //viewStack.pinToCenter(of: view)
-    }
-    
-    func getDMs() {
-        clientUser.getSortedDMs() { dms, error in
-            self.addDMsToStack(dms)
+    private func fetchDMs() {
+        clientUser.getSortedDMs { [weak self] dms, error in
+            guard let self = self else { return }
+            self.dms = dms
+            self.collectionView.reloadData() // only visible cells will render
         }
     }
-    
-    func addDMsToStack(_ dms: [DM]) {
-        for dm in dms {
-            let dmButton = UIButton(type: .custom)
-            dmButton.setTitle(dm.recipient?.displayname, for: .normal)
-            dmButton.setTitleColor(.white, for: .normal)
-            dmButton.titleLabel?.font = .systemFont(ofSize: 20)
-            dmButton.setTitleColor(.gray, for: .highlighted)
-            
-            dmButton.addAction(for: .touchUpInside) {
-                self.navigationController?.pushViewController(DMViewController(dm: dm), animated: true)
-            }
-            
-            self.dmStack.addArrangedSubview(dmButton)
-        }
-    }
-    
-    
 }
 
+// MARK: - Collection View
+extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return dms.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let dm = dms[indexPath.item]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DMButtonCell.reuseID, for: indexPath) as! DMButtonCell
+        cell.configure(with: dm)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let dm = dms[indexPath.item]
+        switch dm.type {
+        case .dm:
+            navigationController?.pushViewController(DMViewController(dm: dm as! DM), animated: true)
+        case .groupDM:
+            navigationController?.pushViewController(GroupDMViewController(dm: dm as! GroupDM), animated: true)
+        default: break
+        }
+    }
+    
+    // Cell sizing
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width - 40 // section insets
+        return CGSize(width: width, height: 50)
+    }
+}
 
