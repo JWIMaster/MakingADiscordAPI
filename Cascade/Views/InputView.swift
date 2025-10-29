@@ -20,6 +20,13 @@ public class InputView: UIView, UITextViewDelegate {
     
     let buttonBackground = LiquidGlassView(blurRadius: 0, cornerRadius: 20, snapshotTargetView: nil, disableBlur: true)
     
+    var replyMessage: Message?
+    var editMessage: Message?
+    
+    public enum inputMode {
+        case edit, reply, send
+    }
+    
     public let textView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -112,6 +119,54 @@ public class InputView: UIView, UITextViewDelegate {
         
     }
     
+    public func editMessage(_ message: Message) {
+        self.changeInputMode(to: .edit)
+        self.editMessage = message
+        self.textView.text = self.editMessage?.content
+        self.textViewDidChange(self.textView)
+    }
+    
+    public func replyToMessage(_ message: Message) {
+        self.changeInputMode(to: .reply)
+        self.replyMessage = message
+    }
+    
+    public func changeInputMode(to mode: inputMode) {
+        switch mode {
+        case .reply:
+            sendButton.removeAllActions()
+            sendButton.addAction(for: .touchUpInside) { [weak self] in
+                self?.replyMessageAction()
+            }
+        case .edit:
+            sendButton.removeAllActions()
+            sendButton.addAction(for: .touchUpInside) { [weak self] in
+                self?.editMessageAction()
+            }
+        case .send:
+            sendButton.removeAllActions()
+            sendButton.addAction(for: .touchUpInside) { [weak self] in
+                self?.sendMessageAction()
+            }
+        }
+    }
+    
+    
+    private func replyMessageAction() {
+        self.sendButton.isUserInteractionEnabled = false
+        
+        guard let channel = self.channel, let dmVC = parentViewController as? DMViewController, let replyMessage = self.replyMessage else { return }
+        
+        let newMessage = Message(clientUser, ["content": self.textView.text])
+        
+        clientUser.reply(to: replyMessage, with: newMessage, in: channel) { error in
+            self.textView.text = nil
+            self.editMessage = nil
+            self.changeInputMode(to: .send)
+            self.sendButton.isUserInteractionEnabled = true
+        }
+    }
+    
     private func sendMessageAction() {
         self.sendButton.isUserInteractionEnabled = false
         
@@ -123,6 +178,21 @@ public class InputView: UIView, UITextViewDelegate {
             guard let self = self else { return }
             self.textView.text = nil
             self.textViewDidChange(self.textView)
+            self.sendButton.isUserInteractionEnabled = true
+        }
+    }
+    
+    private func editMessageAction() {
+        self.sendButton.isUserInteractionEnabled = false
+        
+        guard let channel = self.channel, let dmVC = parentViewController as? DMViewController, let editMessage = self.editMessage else { return }
+        
+        let newMessage = Message(clientUser, ["content": self.textView.text])
+        
+        clientUser.edit(message: editMessage, to: newMessage, in: channel) { error in
+            self.textView.text = nil
+            self.editMessage = nil
+            self.changeInputMode(to: .send)
             self.sendButton.isUserInteractionEnabled = true
         }
     }

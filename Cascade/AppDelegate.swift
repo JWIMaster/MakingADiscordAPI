@@ -24,6 +24,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var navController: UINavigationController
         AvatarCache.shared.memoryCache.countLimit = 20
         
+        
+        
         if token != nil {
             rootVC = ViewController()
             navController = CustomNavigationController(rootViewController: rootVC)

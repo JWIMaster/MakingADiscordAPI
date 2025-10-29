@@ -13,6 +13,8 @@ import SwiftcordLegacy
 import TSMarkdownParser
 import FoundationCompatKit
 
+
+
 public class MessageView: UIView, UIGestureRecognizerDelegate {
     let messageContent: UIStackView = {
         let stack = UIStackView()
@@ -75,6 +77,13 @@ public class MessageView: UIView, UIGestureRecognizerDelegate {
     
     private func setupSubviews() {
         guard let messageBackground = messageBackground else { return }
+        
+        if let replyView = replyView {
+            replyView.translatesAutoresizingMaskIntoConstraints = false
+            addSubview(replyView)
+        }
+        
+        
         messageContent.addArrangedSubview(messageText)
         addSubview(messageContent)
         addSubview(messageBackground)
@@ -165,8 +174,8 @@ public class MessageView: UIView, UIGestureRecognizerDelegate {
     }
     
     private func setupReply() {
-        guard let replyMessage = message?.replyMessage else { return }
-        print(replyMessage)
+        guard let replyMessage = message?.replyMessage, let slClient = self.slClient else { return }
+        self.replyView = ReplyMessageView(slClient, reply: replyMessage)
     }
     
     private func setupAuthorAvatar() {
@@ -382,26 +391,38 @@ public class MessageView: UIView, UIGestureRecognizerDelegate {
     
     private func setupContraints() {
         guard let messageBackground = messageBackground else { return }
+        
+        if let replyView = replyView {
+            NSLayoutConstraint.activate([
+                replyView.topAnchor.constraint(equalTo: self.topAnchor),
+                replyView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
+                replyView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -6)
+            ])
+            messageBackground.topAnchor.constraint(equalTo: replyView.bottomAnchor, constant: 6).isActive = true
+        } else {
+            messageBackground.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        }
+
+        
         NSLayoutConstraint.activate([
-            messageBackground.topAnchor.constraint(equalTo: self.topAnchor),
             messageBackground.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             messageBackground.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             messageBackground.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             
             
-            messageContent.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
-            messageContent.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            messageContent.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
-            messageContent.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -6),
+            messageContent.topAnchor.constraint(equalTo: messageBackground.topAnchor, constant: 20),
+            messageContent.leadingAnchor.constraint(equalTo: messageBackground.leadingAnchor, constant: 20),
+            messageContent.trailingAnchor.constraint(equalTo: messageBackground.trailingAnchor, constant: -20),
+            messageContent.bottomAnchor.constraint(equalTo: messageBackground.bottomAnchor, constant: -6),
             
             
-            authorName.topAnchor.constraint(equalTo: self.topAnchor, constant: 4),
+            authorName.topAnchor.constraint(equalTo: messageBackground.topAnchor, constant: 4),
             authorName.leadingAnchor.constraint(equalTo: messageContent.leadingAnchor),
             
-            edited.bottomAnchor.constraint(equalTo: authorName.bottomAnchor),
+            edited.centerYAnchor.constraint(equalTo: authorName.centerYAnchor),
             edited.leadingAnchor.constraint(equalTo: authorName.trailingAnchor, constant: 4),
             
-            timestamp.bottomAnchor.constraint(equalTo: authorName.bottomAnchor),
+            timestamp.centerYAnchor.constraint(equalTo: authorName.centerYAnchor),
             timestamp.trailingAnchor.constraint(equalTo: messageContent.trailingAnchor)
         ])
         
@@ -430,9 +451,7 @@ public class MessageView: UIView, UIGestureRecognizerDelegate {
 
 
 
-public class ReplyMessageView: UIView {
-    
-}
+
 
 
 

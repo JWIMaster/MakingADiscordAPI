@@ -78,6 +78,7 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         attachGatewayObservers()
         animatedBackground()
         
+        
         guard let gateway = clientUser.gateway else { return }
         
         gateway.onReconnect = { [weak self] in
@@ -166,6 +167,7 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         })
         
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.isEnabled = false
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
@@ -207,6 +209,38 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
+    func scrollToMessage(withID messageID: Snowflake) {
+        guard let navBarHeight = navigationController?.navigationBar.frame.height else { return }
+        let padding: CGFloat = 10
+
+        for view in dmStack.arrangedSubviews {
+            guard let messageView = view as? MessageView, messageView.message?.id == messageID else { continue }
+
+            self.view.layoutIfNeeded()
+            scrollView.layoutIfNeeded()
+            dmStack.layoutIfNeeded()
+
+            // Convert messageView frame to scrollView coordinates
+            let messageFrameInScroll = messageView.convert(messageView.bounds, to: scrollView)
+
+            // Top of scrollView visible area (below navbar)
+            let visibleTop = scrollView.contentOffset.y + navBarHeight + padding
+
+            // Only scroll if message is above the visible area
+            if messageFrameInScroll.minY < visibleTop {
+                let newOffsetY = messageFrameInScroll.minY - navBarHeight - padding
+
+                // Clamp to scrollable range
+                let maxOffsetY = scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom
+                let clampedOffsetY = max(0, min(newOffsetY, maxOffsetY))
+
+                scrollView.setContentOffset(CGPoint(x: 0, y: clampedOffsetY), animated: true)
+            }
+            return
+        }
+    }
+
+    
     func takeMessageAction(_ message: Message) {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -222,7 +256,6 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut]) {
             messageActionView.alpha = 1
             messageActionView.transform = CGAffineTransform(scaleX: 1, y: 1)
-            self.tapGesture.isEnabled = false
             self.containerView.isUserInteractionEnabled = false
             if let nav = UIApplication.shared.keyWindow?.rootViewController as? CustomNavigationController {
                 nav.navBarOpacity = 0
@@ -239,7 +272,6 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
                     subview.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
                 }
             }
-            self.tapGesture.isEnabled = true
             self.containerView.isUserInteractionEnabled = true
             self.containerView.layer.filters = nil
             
@@ -396,6 +428,7 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
         containerViewBottomConstraint.constant = -keyboardFrame.cgRectValue.height
         
         UIView.animate(withDuration: 0.3) {
+            self.tapGesture.isEnabled = true
             self.view.layoutIfNeeded()
             self.scrollView.layoutIfNeeded()
             self.scrollToBottom(animated: true)
@@ -406,6 +439,7 @@ class DMViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc private func keyboardWillDisappear(notification: NSNotification) {
         containerViewBottomConstraint.constant = 0
         UIView.animate(withDuration: 0.3) {
+            self.tapGesture.isEnabled = false
             self.view.layoutIfNeeded()
             self.isKeyboardVisible = false
         }

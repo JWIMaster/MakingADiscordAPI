@@ -152,9 +152,7 @@ class MessageActionView: UIView {
             if let button = subview as? UIButton {
                 button.addAction(for: .touchUpInside) { [weak self] in
                     guard let self = self, let message = self.message, let channel = self.channel, let dmVC = self.parentViewController as? DMViewController else { return }
-                    self.slClient?.reply(to: message, with: message, in: channel) { error in 
-                        
-                    }
+                    dmVC.textInputView?.replyToMessage(message)
                     dmVC.endMessageAction()
                 }
             }
@@ -163,7 +161,9 @@ class MessageActionView: UIView {
         for subview in editButton.subviews {
             if let button = subview as? UIButton {
                 button.addAction(for: .touchUpInside) { [weak self] in
-                    self?.editAction(button: button)
+                    guard let self = self, let dmVC = self.parentViewController as? DMViewController, let message = self.message else { return }
+                    dmVC.textInputView?.editMessage(message)
+                    dmVC.endMessageAction()
                 }
             }
         }
@@ -219,35 +219,6 @@ class MessageActionView: UIView {
             
         }
         dmVC.endMessageAction()
-    }
-    
-    func editAction(button: UIButton) {
-        guard let dmVC = parentViewController as? DMViewController, let message = self.message, let channel = self.channel else { return }
-        
-        let editView = EditView(channel: channel, message: message, snapshotView: button)
-        
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut], animations: {
-            self.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-            self.layer.opacity = 0
-        }, completion: { _ in
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            for subview in self.stackView.arrangedSubviews {
-                subview.removeFromSuperview()
-            }
-            self.stackView.addArrangedSubview(editView)
-            self.stackView.addArrangedSubview(self.cancelButton)
-            editView.isUserInteractionEnabled = true
-            self.stackView.widthAnchor.constraint(equalToConstant: dmVC.view.frame.width-60).isActive = true
-            editView.widthAnchor.constraint(equalTo: self.stackView.widthAnchor).isActive = true
-            CATransaction.commit()
-            
-            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut], animations: {
-                
-                self.transform = CGAffineTransform(scaleX: 1, y: 1)
-                self.layer.opacity = 1
-            }, completion: nil)
-        })
     }
     
     
